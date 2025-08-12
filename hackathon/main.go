@@ -57,14 +57,16 @@ func main() {
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(userModel)
 	uploadHandler := handlers.NewUploadHandler(fileModel)
+	staticHandler := handlers.NewStaticHandler(fileModel)
 
 	// Setup routes
 	r := mux.NewRouter()
 
 	apiV1Router := r.PathPrefix("/api/v1").Subrouter()
 
-	// Static files
-	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	// Static file routes
+	r.HandleFunc("/files/{fileId:[0-9]+}", middleware.AuthMiddleware(staticHandler.ServeFile)).Methods("GET")
+	r.HandleFunc("/public/files/{fileId:[0-9]+}", staticHandler.ServePublicFile).Methods("GET")
 
 	// Auth routes
 	apiV1Router.HandleFunc("/register", authHandler.Register).Methods("POST")

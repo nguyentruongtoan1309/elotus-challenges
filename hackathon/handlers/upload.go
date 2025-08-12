@@ -28,9 +28,11 @@ func NewUploadHandler(fileModel *models.FileModel) *UploadHandler {
 
 // UploadResponse represents the upload response
 type UploadResponse struct {
-	Message  string               `json:"message"`
-	FileID   int                  `json:"file_id"`
-	Metadata *models.FileMetadata `json:"metadata"`
+	Message   string               `json:"message"`
+	FileID    int                  `json:"file_id"`
+	FileURL   string               `json:"file_url"`
+	PublicURL string               `json:"public_url,omitempty"`
+	Metadata  *models.FileMetadata `json:"metadata"`
 }
 
 // Upload handles file upload with validation
@@ -126,9 +128,11 @@ func (h *UploadHandler) Upload(w http.ResponseWriter, r *http.Request) {
 	// Return success response
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(UploadResponse{
-		Message:  "File uploaded successfully",
-		FileID:   savedMetadata.ID,
-		Metadata: savedMetadata,
+		Message:   "File uploaded successfully",
+		FileID:    savedMetadata.ID,
+		FileURL:   fmt.Sprintf("/files/%d", savedMetadata.ID),
+		PublicURL: fmt.Sprintf("/public/files/%d", savedMetadata.ID),
+		Metadata:  savedMetadata,
 	})
 }
 
