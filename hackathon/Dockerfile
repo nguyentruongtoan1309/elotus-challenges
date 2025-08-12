@@ -25,8 +25,11 @@ FROM debian:bullseye-slim AS runtime
 RUN apt-get update && apt-get install -y \
     ca-certificates && rm -rf /var/lib/apt/lists/*
 
+# Create directories
+RUN mkdir -p /app/data /app/uploads
+
 # Copy built binary from builder stage
-COPY --from=builder /build/app /app/app
+COPY --from=builder /build/app /app/
 
 # Set working directory
 WORKDIR /app

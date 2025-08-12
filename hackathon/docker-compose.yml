@@ -8,10 +8,12 @@ services:
     environment:
       - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
       - PORT=${PORT:-8080}
-      - DB_PATH=/app/data/app.db
+      - DB_PATH=/app/${DB_PATH:-data/app.db}
+      - UPLOAD_DIR=/app/${UPLOAD_DIR:-uploads}
     volumes:
       # Persist database
       - ./data:/app/data
+      - ./uploads:/app/uploads
     restart: unless-stopped
     healthcheck:
       test:
