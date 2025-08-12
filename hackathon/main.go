@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"file-uploader/handlers"
+	"file-uploader/middleware"
 	"file-uploader/models"
 
 	"github.com/gorilla/mux"
@@ -46,9 +47,12 @@ func main() {
 	// Setup routes
 	r := mux.NewRouter()
 
+	apiV1Router := r.PathPrefix("/api/v1").Subrouter()
+
 	// Auth routes
-	r.HandleFunc("/register", authHandler.Register).Methods("POST")
-	r.HandleFunc("/login", authHandler.Login).Methods("POST")
+	apiV1Router.HandleFunc("/register", authHandler.Register).Methods("POST")
+	apiV1Router.HandleFunc("/login", authHandler.Login).Methods("POST")
+	apiV1Router.HandleFunc("/revoke", middleware.AuthMiddleware(authHandler.Revoke)).Methods("POST")
 
 	// Get port from environment or default to 8080
 	port := os.Getenv("PORT")

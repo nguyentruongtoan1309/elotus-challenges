@@ -154,3 +154,23 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		Message: "Login successful",
 	})
 }
+
+// Revoke handles token revocation (logout)
+func (h *AuthHandler) Revoke(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	tokenString, ok := r.Context().Value("token").(string)
+	if !ok || tokenString == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(ErrorResponse{Error: "No token provided"})
+		return
+	}
+
+	blacklist := utils.GetTokenBlacklist()
+	blacklist.RevokeToken(tokenString)
+
+	// Return success response
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Token revoked successfully",
+	})
+}

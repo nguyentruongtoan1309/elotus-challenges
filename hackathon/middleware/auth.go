@@ -20,7 +20,6 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		if authHeader != "" && strings.HasPrefix(authHeader, "Bearer ") {
 			tokenString = strings.TrimPrefix(authHeader, "Bearer ")
 		} else {
-			// Try form data (for the simple HTML form)
 			tokenString = r.FormValue("token")
 		}
 
@@ -28,6 +27,14 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
 			json.NewEncoder(w).Encode(map[string]string{"error": "Missing authorization token"})
+			return
+		}
+
+		blacklist := utils.GetTokenBlacklist()
+		if blacklist.IsRevoked(tokenString) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Token has been revoked"})
 			return
 		}
 
